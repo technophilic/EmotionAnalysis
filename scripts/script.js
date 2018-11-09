@@ -98,7 +98,7 @@ function addCanvas(streamId){
 // Client Setup
 // Defines a client for RTC
 
-const socket = io.connect('ws://35.244.179.91/ml');
+const socket = io.connect('wss://35.244.179.91/ml');
 
 socket.on('connect',(d,e)=>{
     console.log("connected to socket !");
