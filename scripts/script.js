@@ -92,81 +92,86 @@ function addCanvas(streamId){
     },3000)*/
 }
 
-/*function analyseSentiment(){
-    const socket = io('http://localhost');
-}*/
+document.getElementById("start").onclick = function () {
+
+    /*function analyseSentiment(){
+        const socket = io('http://localhost');
+    }*/
 // Client Setup
 // Defines a client for RTC
 
-const socket = io.connect('wss://35.244.179.91/ml');
+    const socket = io.connect('wss://samyak.ml/ml');
+    console.log(socket);
 
-socket.on('connect',(d,e)=>{
-    console.log("connected to socket !");
-    canvasPromise.then(function () {
-        let timer=30000;
-        let inter=setInterval(()=>{
-            console.log("canvas created");
-            let img=canvas.toDataURL();
-            img = img.split("data:image/png;base64,")[1];
-            console.log("Send data", {'image': img});
-            socket.emit("json",{'image': img});
-            timer-=3000;
-            console.log(inter);
-            (timer<=0)?clearInterval(inter):console.log(timer);
-        },2000);
+    socket.on('connect',(d,e)=>{
+        console.log("connected to socket !");
+        canvasPromise.then(function () {
+            let timer=30000;
+            let inter=setInterval(()=>{
+                console.log("canvas created");
+                let img=canvas.toDataURL();
+                img = img.split("data:image/png;base64,")[1];
+                console.log("Send data", {'image': img});
+                socket.emit("json",{'image': img});
+                timer-=3000;
+                console.log(inter);
+                (timer<=0)?clearInterval(inter):console.log(timer);
+            },2000);
+        });
     });
-});
-socket.on('message', function (message) {
-    let newImg = document.createElement('img');
-    newImg.src="data:image/png;base64,"+message.result;
-    resultContainer.innerHTML="";
-    resultContainer.appendChild(newImg);
-    console.log(message);
-});
 
-let client = AgoraRTC.createClient({
-    mode: 'live',
-    codec: "h264"
-});
+    socket.on('message', function (message) {
+        let newImg = document.createElement('img');
+        newImg.src="data:image/png;base64,"+message.result;
+        resultContainer.innerHTML="";
+        resultContainer.appendChild(newImg);
+        console.log(message);
+    });
+
+    let client = AgoraRTC.createClient({
+        mode: 'live',
+        codec: "h264"
+    });
 
 // Client Setup
 // Defines a client for Real Time Communication
-client.init("76db5bace1c64ad3a347e402d8fd15a4",() => console.log("AgoraRTC client initialized") ,handleFail);
+    client.init(document.getElementById("app-id").value,() => console.log("AgoraRTC client initialized") ,handleFail);
 
 // The client joins the channel
-client.join(null,"any-channel",null, (uid)=>{
+    client.join(null,"any-channel",null, (uid)=>{
 
-    // Stream object associated with your web cam is initialized
-    let localStream = AgoraRTC.createStream({
-        streamID: uid,
-        audio: false,
-        video: true,
-        screen: false
-    });
+        // Stream object associated with your web cam is initialized
+        let localStream = AgoraRTC.createStream({
+            streamID: uid,
+            audio: false,
+            video: true,
+            screen: false
+        });
 
-    // Associates the stream to the client
-    localStream.init(function() {
+        // Associates the stream to the client
+        localStream.init(function() {
 
-        //Plays the localVideo
-        localStream.play('me');
+            //Plays the localVideo
+            localStream.play('me');
 
-        //Publishes the stream to the channel
-        client.publish(localStream, handleFail);
+            //Publishes the stream to the channel
+            client.publish(localStream, handleFail);
+
+        },handleFail);
 
     },handleFail);
-
-},handleFail);
 //When a stream is added to a channel
-client.on('stream-added', function (evt) {
-    client.subscribe(evt.stream, handleFail);
-});
+    client.on('stream-added', function (evt) {
+        client.subscribe(evt.stream, handleFail);
+    });
 //When you subscribe to a stream
-client.on('stream-subscribed', function (evt) {
-    let stream = evt.stream;
-    addVideoStream(stream.getId());
-    stream.play(stream.getId());
-    addCanvas(stream.getId());
-});
+    client.on('stream-subscribed', function (evt) {
+        let stream = evt.stream;
+        addVideoStream(stream.getId());
+        stream.play(stream.getId());
+        addCanvas(stream.getId());
+    });
 //When a person is removed from the stream
-client.on('stream-removed',removeVideoStream);
-client.on('peer-leave',removeVideoStream);
+    client.on('stream-removed',removeVideoStream);
+    client.on('peer-leave',removeVideoStream);
+}
